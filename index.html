@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Japan Trip 2026</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons (Vanilla JS) -->
+    <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'Noto Sans TC', 'system-ui', 'sans-serif'],
+            },
+            colors: {
+              glass: {
+                100: 'rgba(255, 255, 255, 0.1)',
+                200: 'rgba(255, 255, 255, 0.2)',
+                300: 'rgba(255, 255, 255, 0.3)',
+              }
+            },
+            backdropBlur: {
+              xs: '2px',
+            },
+            boxShadow: {
+              'glow': '0 0 15px rgba(255, 255, 255, 0.3)',
+              'inner-deep': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.6)',
+              'glass-thick': 'inset 0 1px 0 0 rgba(255, 255, 255, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 8px 32px 0 rgba(0, 0, 0, 0.36)',
+            }
+          },
+        },
+      }
+    </script>
+    
+    <!-- Custom Styles -->
+    <style>
+      body {
+        background-color: #000;
+        color: #fff;
+        -webkit-font-smoothing: antialiased;
+        overscroll-behavior-y: none;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.4s ease-out forwards;
+      }
+      
+      /* Accordion Transitions */
+      .accordion-content {
+        transition: grid-template-rows 0.3s ease-out, opacity 0.3s ease-out, padding-top 0.3s ease-out;
+        display: grid;
+        grid-template-rows: 0fr;
+        opacity: 0;
+      }
+      .accordion-content.open {
+        grid-template-rows: 1fr;
+        opacity: 1;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        margin-top: 1rem;
+      }
+      .accordion-inner {
+        overflow: hidden;
+      }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0"
+  }
+}
+</script>
+</head>
+<body>
+    <!-- App Root -->
+    <div id="root" class="min-h-screen w-full relative overflow-x-hidden font-sans selection:bg-cyan-500/30"></div>
+
+    <!-- Logic Script -->
+    <script>
+      // ----------------------------------------------------------------------
+      // ICONS MAPPING (React Lucide -> Vanilla Lucide Data Attribute)
+      // ----------------------------------------------------------------------
+      const ICON_MAP = {
+        Home: 'home',
+        Map: 'map',
+        CheckSquare: 'check-square',
+        Info: 'info',
+        Plane: 'plane',
+        QrCode: 'qr-code',
+        ExternalLink: 'external-link',
+        Calendar: 'calendar',
+        Timer: 'timer',
+        ArrowRight: 'arrow-right',
+        MapPin: 'map-pin',
+        Clock: 'clock',
+        Utensils: 'utensils',
+        ShoppingBag: 'shopping-bag',
+        Camera: 'camera',
+        ChevronDown: 'chevron-down',
+        ChevronUp: 'chevron-up',
+        Wallet: 'wallet',
+        Star: 'star',
+        NotepadText: 'notepad-text',
+        Car: 'car',
+        TrainFront: 'train-front',
+        LocateFixed: 'locate-fixed',
+        Split: 'split',
+        Coffee: 'coffee',
+        Trash2: 'trash-2',
+        Plus: 'plus',
+        Sparkles: 'sparkles',
+        Pencil: 'pencil',
+        Check: 'check',
+        ArrowUp: 'arrow-up',
+        ArrowDown: 'arrow-down',
+        Snowflake: 'snowflake',
+        AlertTriangle: 'alert-triangle',
+        ShieldAlert: 'shield-alert',
+        Phone: 'phone'
+      };
+
+      // Helper to generate icon HTML
+      function Icon(name, size = 24, className = '', strokeWidth = 2) {
+        const iconName = ICON_MAP[name] || 'help-circle';
+        // Lucide looks for 'data-lucide'
+        return `<i data-lucide="${iconName}" width="${size}" height="${size}" class="${className}" stroke-width="${strokeWidth}"></i>`;
+      }
+
+      // ----------------------------------------------------------------------
+      // DATA & CONSTANTS
+      // ----------------------------------------------------------------------
+      const SpotType = {
+        SIGHTSEEING: '景點',
+        RESTAURANT: '餐廳',
+        DESSERT: '甜點',
+        SHOPPING: '購物',
+        TRANSPORT: '交通',
+        HOTEL: '住宿',
+        OTHER: '其他'
+      };
+
+      const FLIGHTS = [
+        {
+          type: 'Depart',
+          date: '2026/01/13',
+          airline: '台灣虎航',
+          flightNumber: 'IT216',
+          from: 'TPE 桃園 T1',
+          to: 'HND 羽田 T3',
+          time: '00:10 - 04:00',
+          terminal: 'T3'
+        },
+        {
+          type: 'Return',
+          date: '2026/01/24',
+          airline: '中華航空',
+          flightNumber: 'CI101',
+          from: 'NRT 成田 T2',
+          to: 'TPE 桃園 T2',
+          time: '14:35 - 17:45',
+          terminal: 'T2'
+        }
+      ];
+
+      const TRIP_DATA = [
+        {
+          date: '01/12',
+          dayOfWeek: 'Day 0',
+          weather: { temp: '15°C', condition: '涼爽舒適', icon: '✈️' },
+          hotel: { name: '機上 / 往機場', address: '', mapUrl: '' },
+          spots: [
+            { id: 'd0-1', time: '19:00', name: '台北車站機場捷運', type: SpotType.TRANSPORT, description: '集合準備前往機場。', cost: 'NT$160', isPriority: true, tips: '班次：每15分鐘一班直達車。車程約36分。' },
+            { id: 'd0-2', time: '20:00', name: '抵達桃園機場', type: SpotType.TRANSPORT, description: '第一航廈辦理登機。', isPriority: true, tips: '00:10起飛。請檢查護照、Visit Japan Web QR Code。' }
+          ]
+        },
+        {
+          date: '01/13',
+          dayOfWeek: 'Day 1',
+          weather: { temp: '5°C', condition: '陰天微冷', icon: '☁️' },
+          hotel: { name: '大和魯內仙台西口飯店', address: '仙台西口', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Daiwa+Roynet+Hotel+Sendai-nishiguchi' },
+          spots: [
+            { id: 'd1-1', time: '04:00', name: '抵達羽田機場 (HND)', type: SpotType.TRANSPORT, description: '預計 06:00 入境完成。', isPriority: true },
+            { id: 'd1-2', time: '07:08', name: '前往仙台 (轉乘)', type: SpotType.TRANSPORT, description: '羽田(京急) -> 品川(JR) -> 東京(新幹線) -> 仙台', cost: '¥11,720', tags: ['事先購買新幹線'], tips: '07:08 羽田T3 -> 07:29 品川 (轉乘8分) -> 07:37 品川 -> 07:45 東京 (轉乘33分) -> 08:18 東京(20月台) -> 09:56 仙台' },
+            { id: 'd1-3', time: '10:30', name: '仙台站 & 寄放行李', type: SpotType.HOTEL, description: '購買「盧普仙台」觀光巴士一日券 (¥630)。', cost: '¥630', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Sendai+Station' },
+            { id: 'd1-4', time: '11:00', name: '仙台朝市', type: SpotType.SIGHTSEEING, description: '新鮮海產市場。', tips: '營業時間 08:00-17:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Sendai+Asaichi' },
+            { id: 'd1-food-1', time: '12:00', name: '牛たん炭焼 利久 仙台駅店', type: SpotType.RESTAURANT, description: '午餐：厚切牛舌定食。', tags: ['推薦'], tips: '營業時間 10:00-21:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Rikyu+Sendai+Station' },
+            { id: 'd1-5', time: '14:00', name: '瑞鳳殿', type: SpotType.SIGHTSEEING, description: '伊達政宗靈廟。', cost: '¥570', tips: '營業時間 09:00-16:50', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Zuihoden' },
+            { id: 'd1-6', time: '15:30', name: '仙台城跡', type: SpotType.SIGHTSEEING, description: '伊達政宗騎馬像、市景。', cost: '¥700', tips: '24小時開放', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Sendai+Castle+Ruins' },
+            { id: 'd1-7', time: '17:00', name: 'AER 展望台 & 購物中心', type: SpotType.SIGHTSEEING, description: '免費俯瞰仙台夜景。', tips: '展望台開放至 20:00，購物至 21:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=AER+Sendai' },
+            { id: 'd1-8', time: '19:00', name: '一番町/中央通商店街', type: SpotType.SHOPPING, description: '返回仙台站周邊逛街。', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Ichibancho+Shopping+Arcade' },
+            { id: 'd1-food-2', time: '19:30', name: '閣 仙台駅前店', type: SpotType.RESTAURANT, description: '晚餐：新鮮生魚片、牡蠣料理。', tags: ['推薦'], tips: '營業時間 11:30-14:30, 17:00-22:30', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Kaku+Sendai+Station' },
+            { id: 'd1-9', time: '21:00', name: 'Daiwa Roynet Hotel', type: SpotType.HOTEL, description: '辦理入住休息。', isPriority: true },
+            { id: 'd1-bk-1', time: '候補', name: '烤牛舌 善治郎', type: SpotType.RESTAURANT, description: '牛舌定食 (11:00-22:30)', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Zenjirou+Sendai' },
+            { id: 'd1-bk-2', time: '候補', name: '味之牛舌 喜助', type: SpotType.RESTAURANT, description: '牛舌套餐 (10:00-21:30)', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Kisuke+Sendai' }
+          ]
+        },
+        {
+          date: '01/14',
+          dayOfWeek: 'Day 2',
+          weather: { temp: '-1°C', condition: '間歇陣雪', icon: '❄️' },
+          hotel: { name: '古勢起屋本館', address: '銀山溫泉', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Kosekiya+Ginzan+Onsen' },
+          spots: [
+            { id: 'd2-1', time: '09:00', name: 'Alamo Rent A Car 取車', type: SpotType.TRANSPORT, description: '取車 (4WD)。開車約40分至松島。', isPriority: true, tips: '請準備日文譯本駕照、護照。' },
+            { id: 'd2-2', time: '09:40', name: '松島海岸 & 遊覽船', type: SpotType.SIGHTSEEING, description: '日本三景之一。遊覽船觀賞260島嶼。', cost: '¥1,500', tips: '遊船約50分鐘，每小時一班(09:00首班)。', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Matsushima+Bay' },
+            { id: 'd2-3', time: '11:00', name: '瑞巖寺 & 五大堂', type: SpotType.SIGHTSEEING, description: '國寶寺廟與地標。', cost: '¥700', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Zuiganji+Temple' },
+            { id: 'd2-food-1', time: '12:00', name: '松島魚市場 (松島さかな市場)', type: SpotType.RESTAURANT, description: '午餐：海鮮丼、烤牡蠣。', tags: ['推薦'], tips: '營業時間 09:00-16:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Matsushima+Fish+Market' },
+            { id: 'd2-4', time: '13:30', name: '開車前往銀山溫泉', type: SpotType.TRANSPORT, description: '車程約 1小時40分。', tips: '直接開進停車場 (古勢起屋専用駐車場)，打電話給旅館接駁。' },
+            { id: 'd2-5', time: '16:30', name: '能登屋旅館 (外觀)', type: SpotType.SIGHTSEEING, description: '神隱少女原型，拍照熱點。', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Notoya+Ryokan' },
+            { id: 'd2-6', time: '17:00', name: '銀山溫泉街 & 白銀瀑布', type: SpotType.SIGHTSEEING, description: '大正浪漫風情，冬季冰瀑與歷史礦坑。', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Ginzan+Onsen' },
+            { id: 'd2-7', time: '18:00', name: '古勢起屋本館', type: SpotType.HOTEL, description: '辦理入住 & 晚餐。', isPriority: true }
+          ]
+        },
+        {
+            date: '01/15', dayOfWeek: 'Day 3', weather: { temp: '-2°C', condition: '小雪紛飛', icon: '❄️' },
+            hotel: { name: '山形格蘭飯店', address: '山形市', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Yamagata+Grand+Hotel' },
+            spots: [
+                { id: 'd3-1', time: '10:00', name: '德良湖', type: SpotType.SIGHTSEEING, description: '開車約15分。無營業時間限制。', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Tokura+Lake' },
+                { id: 'd3-2', time: '12:00', name: '山形霞城公園', type: SpotType.SIGHTSEEING, description: '開車約45分。冬季雪景。', tips: '開放時間 05:30-22:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Kajo+Park' },
+                { id: 'd3-food-1', time: '13:00', name: 'そば処 明友庵', type: SpotType.RESTAURANT, description: '午餐：手打蕎麥麵。', tags: ['推薦'], tips: '11:00-16:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Sobadokoro+Meiyu-an' },
+                { id: 'd3-3', time: '15:30', name: '山形城跡', type: SpotType.SIGHTSEEING, description: '歷史遺址。', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Yamagata+Castle' },
+                { id: 'd3-5', time: '17:00', name: '上山城', type: SpotType.SIGHTSEEING, description: '夜間點燈 (至21:00)。', tips: '僅外觀', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Kaminoyama+Castle' },
+                { id: 'd3-food-2', time: '19:00', name: 'SHOJIYA Yamagata', type: SpotType.RESTAURANT, description: '晚餐：蕎麥麵定食。', tags: ['推薦'], tips: '11:00-20:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Shojiya+Yamagata' },
+                { id: 'd3-6', time: '20:30', name: 'Yamagata Grand Hotel', type: SpotType.HOTEL, description: '前往飯店入住。', isPriority: true }
+            ]
+        },
+        {
+            date: '01/16', dayOfWeek: 'Day 4', weather: { temp: '-5°C', condition: '大雪/暴風雪', icon: '🌨️' },
+            hotel: { name: '德巴特小度假飯店', address: '藏王溫泉', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Petit+Resort+Hotel+Der+Barte' },
+            spots: [
+                { id: 'd4-1', time: '09:00', name: '開車前往藏王', type: SpotType.TRANSPORT, description: '開車約30分鐘。' },
+                { id: 'd4-2', time: '10:00', name: '藏王纜車・樹冰觀賞', type: SpotType.SIGHTSEEING, description: '搭乘纜車至地藏山頂站看「雪怪」。', cost: '¥4,400', tags: ['必看絕景'], tips: '纜車票12/10開賣。山上極冷。', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Zao+Ropeway' },
+                { id: 'd4-3', time: '12:00', name: '藏王溫泉大露天風呂', type: SpotType.SIGHTSEEING, description: '日本最大露天溫泉。', cost: '¥600', tips: '09:30-17:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Zao+Onsen+Dai+Rotemburo' },
+                { id: 'd4-food-1', time: '13:00', name: 'きくち食堂 (Kikuchi)', type: SpotType.RESTAURANT, description: '午餐：成吉思汗烤羊肉定食。', tags: ['推薦'], tips: '11:00-13:40', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Kikuchi+Shokudo+Zao' },
+                { id: 'd4-5', time: '17:00', name: '藏王溫泉街', type: SpotType.SIGHTSEEING, description: '溫泉街散步。', tips: '06:00-22:00' },
+                { id: 'd4-food-2', time: '19:00', name: '仙台炭焼牛たん東山', type: SpotType.RESTAURANT, description: '晚餐：極厚牛舌定食 (仙台本店)。', tags: ['推薦'], tips: '11:30-23:30', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Gyutan+Higashiyama' },
+                { id: 'd4-6', time: '21:00', name: 'Petit Resort Hotel Der Barte', type: SpotType.HOTEL, description: '前往飯店入住。', isPriority: true }
+            ]
+        },
+        {
+            date: '01/17', dayOfWeek: 'Day 5', weather: { temp: '2°C', condition: '陰偶有雪', icon: '☁️' },
+            hotel: { name: '仙台大都會飯店東館', address: '仙台站東口', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Hotel+Metropolitan+Sendai+East' },
+            spots: [
+                { id: 'd5-1', time: '09:00', name: '前往狐狸村', type: SpotType.TRANSPORT, description: '開車約 1.5 小時。' },
+                { id: 'd5-2', time: '10:30', name: '藏王狐狸村', type: SpotType.SIGHTSEEING, description: '冬季狐狸互動。', cost: '¥1,000', tips: '禁止觸摸。小心隨身物品。', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Zao+Fox+Village' },
+                { id: 'd5-3', time: '13:30', name: '金蛇水神社', type: SpotType.SIGHTSEEING, description: '黑色御守 (金運)。車程約50分。', tips: '08:30-16:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Kanahebisui+Shrine' },
+                { id: 'd5-5', time: '18:00', name: '仙台還車', type: SpotType.TRANSPORT, description: '歸還租車。車程約50分。', isPriority: true },
+                { id: 'd5-food-1', time: '19:00', name: 'すし波奈 (Sushi Hana)', type: SpotType.RESTAURANT, description: '晚餐：東北壽司 (仙台Parco店)。', tags: ['推薦'], tips: '11:00-22:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Sushi+Hana+Sendai+Parco' },
+                { id: 'd5-6', time: '21:00', name: 'Hotel Metropolitan Sendai East', type: SpotType.HOTEL, description: '入住飯店。', isPriority: true }
+            ]
+        },
+        {
+            date: '01/18', dayOfWeek: 'Day 6', weather: { temp: '5°C', condition: '晴空萬里', icon: '☀️' },
+            hotel: { name: 'APA飯店 輕井澤站前', address: '輕井澤站前', mapUrl: 'https://www.google.com/maps/search/?api=1&query=APA+Hotel+Karuizawa-Ekimae' },
+            spots: [
+                { id: 'd6-1', time: '10:00', name: '定禪寺通 & 媒體中心', type: SpotType.SIGHTSEEING, description: '冬季燈飾散步。', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Sendai+Mediatheque' },
+                { id: 'd6-3', time: '14:31', name: '前往東京 (新幹線)', type: SpotType.TRANSPORT, description: 'Hayabusa: 仙台 -> 東京', cost: '¥11,410', isPriority: true },
+                { id: 'd6-4', time: '18:04', name: '前往輕井澤 (新幹線)', type: SpotType.TRANSPORT, description: 'Hakutaka: 東京 -> 輕井澤', cost: '¥5,690', isPriority: true },
+                { id: 'd6-food-1', time: '19:30', name: '村民食堂', type: SpotType.RESTAURANT, description: '晚餐：信州牛漢堡排。', tags: ['推薦'], tips: '11:30-21:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Sonmin-Shokudo' },
+                { id: 'd6-5', time: '21:00', name: 'APA Hotel Karuizawa-Ekimae', type: SpotType.HOTEL, description: '入住飯店 (Karuizawaso)。', isPriority: true }
+            ]
+        },
+        {
+            date: '01/19', dayOfWeek: 'Day 7', weather: { temp: '-3°C', condition: '降雪機率高', icon: '❄️' },
+            hotel: { name: '輕井澤王子大飯店 西館', address: '輕井澤王子飯店西館', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Karuizawa+Prince+Hotel+West' },
+            spots: [
+                { id: 'd7-1', time: '09:00', name: '輕井澤王子大飯店滑雪場', type: SpotType.SIGHTSEEING, description: '滑雪 / 1日券 ¥10,000。', cost: '¥10,000', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Karuizawa+Prince+Hotel+Ski+Resort' },
+                { id: 'd7-2', time: '13:00', name: '雲場池', type: SpotType.SIGHTSEEING, description: '冬季鏡湖雪景。', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Kumoba+Pond' },
+                { id: 'd7-food-2', time: '19:00', name: '腸詰屋', type: SpotType.RESTAURANT, description: '晚餐：德式香腸拼盤。', tags: ['推薦'], tips: '10:00-18:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Chozumeya+Karuizawa' },
+                { id: 'd7-4', time: '20:00', name: 'Karuizawa Prince Hotel West', type: SpotType.HOTEL, description: '入住飯店。', isPriority: true }
+            ]
+        },
+        {
+            date: '01/20', dayOfWeek: 'Day 8', weather: { temp: '-4°C', condition: '雪地活動', icon: '🏂' },
+            hotel: { name: '輕井澤王子大飯店 西館', address: '輕井澤王子飯店西館', mapUrl: 'https://www.google.com/maps/search/?api=1&query=Karuizawa+Prince+Hotel+West' },
+            spots: [
+                { id: 'd8-1', time: '09:00', name: 'Akakura Onsen 滑雪場', type: SpotType.SIGHTSEEING, description: '不同路線體驗。', cost: '¥10,000', tips: '08:00-17:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Akakura+Onsen+Ski+Area' },
+                { id: 'd8-food-1', time: '18:00', name: '川上庵 (Kawakami An)', type: SpotType.RESTAURANT, description: '晚餐：蕎麥麵、天婦羅。', tags: ['推薦'], tips: '11:00-22:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Kawakami+An+Karuizawa' }
+            ]
+        },
+        {
+            date: '01/21', dayOfWeek: 'Day 9', weather: { temp: '8°C', condition: '晴時多雲', icon: '🌤️' },
+            hotel: { name: 'APA飯店 淺草田原町站前', address: '淺草田原町', mapUrl: 'https://www.google.com/maps/search/?api=1&query=APA+Hotel+Asakusa+Tawaramachi-Ekimae' },
+            spots: [
+                { id: 'd9-1', time: '09:00', name: '舊輕井澤銀座', type: SpotType.SHOPPING, description: '復古購物街。', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Karuizawa+Ginza' },
+                { id: 'd9-4', time: '12:00', name: '輕井澤王子購物廣場 (Outlet)', type: SpotType.SHOPPING, description: '自由購物。', tips: '10:00-20:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Karuizawa+Prince+Shopping+Plaza' },
+                { id: 'd9-6', time: '16:23', name: '前往東京 (新幹線)', type: SpotType.TRANSPORT, description: '輕井澤 -> 東京 (17:28抵達)。', cost: '¥6,020', isPriority: true },
+                { id: 'd9-food-2', time: '19:30', name: '淺草今半 國際通本店', type: SpotType.RESTAURANT, description: '晚餐：和牛壽喜燒。', tags: ['推薦', '老店'], tips: '11:30-20:30', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Asakusa+Imahan+Kokusai+Dori' },
+                { id: 'd9-9', time: '21:00', name: 'APA Hotel Asakusa', type: SpotType.HOTEL, description: '入住飯店。', isPriority: true }
+            ]
+        },
+        {
+            date: '01/22', dayOfWeek: 'Day 10', weather: { temp: '6°C', condition: 'A/B方案', icon: '🗻' },
+            hotel: { name: 'APA飯店 淺草田原町站前', address: '淺草田原町', mapUrl: 'https://www.google.com/maps/search/?api=1&query=APA+Hotel+Asakusa+Tawaramachi-Ekimae' },
+            spots: [],
+            plans: {
+              'A': {
+                label: '方案A：富士山',
+                spots: [
+                  { id: 'd10-a-1', time: '07:30', name: '前往新宿 (銀座線+JR)', type: SpotType.TRANSPORT, description: '淺草 -> 新宿。', isPriority: true },
+                  { id: 'd10-a-2', time: '08:10', name: '高速巴士往河口湖', type: SpotType.TRANSPORT, description: '新宿 -> 河口湖。', cost: '¥1,900', isPriority: true },
+                  { id: 'd10-a-3', time: '10:30', name: '河口湖遊覽船', type: SpotType.SIGHTSEEING, description: '遊湖觀賞富士山。', cost: '¥1,000', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Kawaguchiko+Sightseeing+Boat' },
+                  { id: 'd10-a-food-1', time: '12:30', name: 'ほうとう不動', type: SpotType.RESTAURANT, description: '午餐：味噌燉麵 (Hoto)。', tags: ['推薦'], tips: '11:00-20:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Hoto+Fudo+Kawaguchiko' },
+                  { id: 'd10-a-7', time: '21:00', name: 'APA Hotel Asakusa', type: SpotType.HOTEL, description: '返回東京飯店。', isPriority: true }
+                ]
+              },
+              'B': {
+                label: '方案B：東京市區',
+                spots: [
+                   { id: 'd10-b-1', time: '09:00', name: '淺草寺', type: SpotType.SIGHTSEEING, description: '雷門、仲見世通。', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Senso-ji' },
+                   { id: 'd10-b-2', time: '12:00', name: '大黑家天婦羅', type: SpotType.RESTAURANT, description: '午餐：天丼。', tags: ['推薦'], locationUrl: 'https://www.google.com/maps/search/?api=1&query=Daikokuya+Tempura' },
+                   { id: 'd10-b-food-1', time: '19:00', name: '一蘭拉麵 淺草店', type: SpotType.RESTAURANT, description: '晚餐：豚骨拉麵。', tags: ['推薦'], locationUrl: 'https://www.google.com/maps/search/?api=1&query=Ichiran+Asakusa' },
+                   { id: 'd10-b-6', time: '21:00', name: 'APA Hotel Asakusa', type: SpotType.HOTEL, description: '返回飯店。', isPriority: true }
+                ]
+              }
+            }
+        },
+        {
+            date: '01/23', dayOfWeek: 'Day 11', weather: { temp: '7°C', condition: '多雲時晴', icon: '🌤️' },
+            hotel: { name: 'APA飯店 淺草田原町站前', address: '淺草田原町', mapUrl: 'https://www.google.com/maps/search/?api=1&query=APA+Hotel+Asakusa+Tawaramachi-Ekimae' },
+            spots: [
+                { id: 'd11-1', time: '08:30', name: '前往川越', type: SpotType.TRANSPORT, description: '東武線/JR埼京線。', tips: '08:30出發 -> 09:40抵達' },
+                { id: 'd11-2', time: '10:00', name: '小江戶川越 一番街', type: SpotType.SIGHTSEEING, description: '藏造老屋街道。', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Kawagoe+Ichibangai' },
+                { id: 'd11-food-1', time: '12:00', name: '小川菊 (Ogakiku)', type: SpotType.RESTAURANT, description: '午餐：鰻魚飯。', tags: ['推薦'], tips: '11:00-19:00', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Ogakiku+Kawagoe' },
+                { id: 'd11-5', time: '13:30', name: '川越冰川神社', type: SpotType.SIGHTSEEING, description: '結緣神社。', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Kawagoe+Hikawa+Shrine' },
+                { id: 'd11-8', time: '20:00', name: 'APA Hotel Asakusa', type: SpotType.HOTEL, description: '返回飯店。', isPriority: true }
+            ]
+        },
+        {
+          date: '01/24', dayOfWeek: 'Day 12', weather: { temp: '8°C', condition: '返程', icon: '✈️' },
+          hotel: { name: '返程', address: '成田機場', mapUrl: '' },
+          spots: [
+            { id: 'd12-1', time: '09:00', name: '淺草寺', type: SpotType.SIGHTSEEING, description: '清晨氛圍。', locationUrl: 'https://www.google.com/maps/search/?api=1&query=Senso-ji' },
+            { id: 'd12-4', time: '11:30', name: '前往成田機場', type: SpotType.TRANSPORT, description: 'Skyliner -> 成田機場。', cost: '¥2,700', tips: '約1.5小時。預計13:00前抵達T2。' },
+            { id: 'd12-5', time: '14:35', name: '搭機返台', type: SpotType.TRANSPORT, description: 'CI101 (14:35 - 17:45)。', isPriority: true }
+          ]
+        }
+      ];
+
+      const INITIAL_CHECKLIST = [
+        { id: 'imp-1', category: '重要證件/金錢', text: '護照', checked: false },
+        { id: 'imp-2', category: '重要證件/金錢', text: '國際駕照 & 譯本', checked: false },
+        { id: 'imp-4', category: '重要證件/金錢', text: '機票', checked: false },
+        { id: 'imp-6', category: '重要證件/金錢', text: '錢包(現金/提款卡)', checked: false },
+        { id: 'imp-11', category: '重要證件/金錢', text: '網卡 / Esim', checked: false },
+        { id: 'cloth-3', category: '衣物 (留意天氣)', text: '外套/厚外套', checked: false },
+        { id: 'cloth-5', category: '衣物 (留意天氣)', text: '內衣褲/襪子', checked: false },
+        { id: 'elec-1', category: '電器', text: '行動電源/充電線', checked: false },
+        { id: 'elec-7', category: '電器', text: '萬用插頭', checked: false },
+        { id: 'toil-1', category: '盥洗用品', text: '牙刷/牙膏/洗面乳', checked: false },
+        { id: 'oth-1', category: '其他', text: '眼鏡/隱形眼鏡', checked: false },
+        { id: 'ski-1', category: '滑雪用具', text: '雪鏡/手套/雪褲', checked: false }
+      ];
+
+      // ----------------------------------------------------------------------
+      // STATE MANAGEMENT
+      // ----------------------------------------------------------------------
+      const state = {
+        activeTab: 'home', // home, itinerary, checklist, info
+        selectedDayIndex: 0,
+        activePlan: 'A', // A or B
+        checklist: [],
+        checklistEditing: false,
+        expandedChecklistCategories: new Set(['自訂']),
+        activeMapLocation: null,
+        infoOpenSection: 'outfit'
+      };
+
+      // Load Checklist from LocalStorage
+      const savedChecklist = localStorage.getItem('japan_trip_checklist_v2');
+      state.checklist = savedChecklist ? JSON.parse(savedChecklist) : JSON.parse(JSON.stringify(INITIAL_CHECKLIST));
+
+      // ----------------------------------------------------------------------
+      // UTILITY COMPONENTS (Template Literals)
+      // ----------------------------------------------------------------------
+
+      const GlassCard = ({ content, className = '', hideGloss = false, onClick = '' }) => `
+        <div 
+          ${onClick ? `onclick="${onClick}"` : ''}
+          class="relative overflow-hidden bg-gradient-to-b from-white/[0.15] to-white/[0.05] backdrop-blur-2xl shadow-glass-thick rounded-[32px] p-5 text-white transition-all duration-300 hover:from-white/[0.20] hover:to-white/[0.10] hover:backdrop-brightness-125 backdrop-saturate-150 ${className}"
+        >
+          ${!hideGloss ? '<div class="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/[0.1] to-transparent pointer-events-none rounded-[inherit]"></div>' : ''}
+          ${content}
+        </div>
+      `;
+
+      // ----------------------------------------------------------------------
+      // PAGE RENDERERS
+      // ----------------------------------------------------------------------
+
+      // --- HOME ---
+      function renderHomePage() {
+        const daysLeft = Math.max(0, Math.ceil((new Date('2026-01-12T00:00:00').getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+        
+        const flightCards = FLIGHTS.map((flight) => {
+          const isDepart = flight.type === 'Depart';
+          const [originCode, , originTerminal] = flight.from.split(' ');
+          const [destCode, , destTerminal] = flight.to.split(' ');
+          const [departTime, arriveTime] = flight.time.split('-').map(t => t.trim());
+          const laserGradient = isDepart ? 'from-transparent via-cyan-400 to-transparent' : 'from-transparent via-purple-400 to-transparent';
+
+          return GlassCard({
+            hideGloss: true,
+            className: '!p-5 relative group hover:bg-white/10 transition-colors duration-500 mb-5',
+            content: `
+              <div class="flex justify-between items-start mb-8">
+                  <div class="flex gap-2 flex-wrap">
+                      <div class="flex items-center gap-1.5 bg-white/5 shadow-glass-thick rounded-full px-3 py-1 backdrop-blur-md">
+                          ${Icon('Calendar', 10, 'text-white/60')}
+                          <span class="text-[10px] font-bold tracking-wide text-white/80">${flight.date}</span>
+                      </div>
+                      <div class="flex items-center gap-1.5 bg-white/5 shadow-glass-thick rounded-full px-3 py-1 backdrop-blur-md">
+                          ${Icon('Plane', 10, 'text-white/60')}
+                          <span class="text-[10px] font-medium tracking-wide text-white/80">${flight.airline} ${flight.flightNumber}</span>
+                      </div>
+                  </div>
+                  <div class="flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 rounded-full px-3 py-1 backdrop-blur-md shadow-[0_0_10px_rgba(74,222,128,0.1)]">
+                        <div class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse shadow-[0_0_5px_rgba(74,222,128,0.8)]"></div>
+                        <span class="text-[10px] font-bold text-green-300 tracking-wide">準點</span>
+                  </div>
+              </div>
+
+              <div class="flex items-center justify-between px-2 relative z-10">
+                  <div class="flex flex-col items-center">
+                      <span class="text-4xl font-thin tracking-widest text-white drop-shadow-lg font-sans">${originCode}</span>
+                      <div class="mt-2 flex flex-col items-center gap-0.5">
+                          <span class="text-lg font-medium text-white/80 -translate-y-[20%]">${departTime}</span>
+                          ${originTerminal ? `<span class="text-[10px] text-white/40 font-bold bg-white/5 px-1.5 rounded border border-white/5">${originTerminal}</span>` : ''}
+                      </div>
+                  </div>
+
+                  <div class="flex-1 mx-6 relative flex flex-col items-center justify-center">
+                      <div class="mb-3 bg-black/20 shadow-inner-deep rounded-full px-2 py-0.5 backdrop-blur-sm">
+                          <span class="text-[9px] text-white/50 tracking-widest uppercase font-bold">3H 50M</span>
+                      </div>
+                      <div class="w-full relative h-[20px] flex items-center">
+                          <div class="absolute w-full h-[1px] bg-gradient-to-r ${laserGradient} opacity-50"></div>
+                          <div class="absolute w-full h-[1px] bg-gradient-to-r ${laserGradient} blur-[2px] opacity-80"></div>
+                          <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/40 p-1.5 rounded-full backdrop-blur-md z-20 shadow-glass-thick ${isDepart ? 'shadow-[0_0_15px_rgba(34,211,238,0.4)]' : 'shadow-[0_0_15px_rgba(168,85,247,0.4)]'}">
+                              ${Icon('Plane', 14, `${isDepart ? 'text-cyan-300' : 'text-purple-300'} ${!isDepart ? '-scale-x-100' : ''}`)}
+                          </div>
+                          <div class="absolute left-0 w-1 h-1 rounded-full bg-white/80 shadow-[0_0_5px_white]"></div>
+                          <div class="absolute right-0 w-1 h-1 rounded-full bg-white/80 shadow-[0_0_5px_white]"></div>
+                      </div>
+                      <span class="mt-3 text-[9px] text-white/30 tracking-widest">ECONOMY</span>
+                  </div>
+
+                  <div class="flex flex-col items-center">
+                      <span class="text-4xl font-thin tracking-widest text-white drop-shadow-lg font-sans">${destCode}</span>
+                        <div class="mt-2 flex flex-col items-center gap-0.5">
+                          <span class="text-lg font-medium text-white/80 -translate-y-[20%]">${arriveTime}</span>
+                            ${destTerminal ? `<span class="text-[10px] text-white/40 font-bold bg-white/5 px-1.5 rounded border border-white/5">${destTerminal}</span>` : ''}
+                      </div>
+                  </div>
+              </div>
+              <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-[1px] bg-gradient-to-r ${laserGradient} opacity-20"></div>
+            `
+          });
+        }).join('');
+
+        return `
+          <div class="space-y-8 pb-24 animate-fade-in">
+            <section class="mt-6">
+              <div class="flex items-center justify-between mb-4 px-2">
+                <h2 class="text-lg font-semibold text-white/90 tracking-wide flex items-center gap-2">
+                  ${Icon('Timer', 18, 'text-cyan-400')} 旅程倒數
+                </h2>
+              </div>
+              ${GlassCard({
+                className: 'flex flex-row items-center justify-between px-6 py-6 relative overflow-hidden group hover:bg-white/10 transition-colors duration-500',
+                content: `
+                 <div class="w-12 h-12 rounded-full bg-white/10 shadow-glass-thick flex items-center justify-center shrink-0 backdrop-blur-md">
+                    ${Icon('Timer', 24, 'text-cyan-400')}
+                 </div>
+                 <div class="flex-1 ml-4 flex flex-col justify-center">
+                    <span class="text-xs text-white/50 uppercase tracking-widest font-medium mb-1">距離啟程</span>
+                    <div class="flex flex-col">
+                       <span class="text-base font-bold text-white tracking-wide whitespace-nowrap">日本東北</span>
+                       <span class="text-sm font-medium text-white/60 tracking-wider">2026.01.12</span>
+                    </div>
+                 </div>
+                 <div class="flex items-baseline gap-2">
+                    <span class="text-5xl font-thin text-white tabular-nums tracking-tighter leading-none drop-shadow-md">${daysLeft}</span>
+                    <span class="text-[10px] font-bold text-white/30 tracking-[0.2em] uppercase">DAYS</span>
+                 </div>
+                `
+              })}
+            </section>
+
+            <section>
+              <div class="flex items-center justify-between mb-4 px-2">
+                <h2 class="text-lg font-semibold text-white/90 tracking-wide flex items-center gap-2">
+                  ${Icon('Plane', 18, 'text-cyan-400')} 航班資訊
+                </h2>
+              </div>
+              <div class="space-y-5">
+                ${flightCards}
+              </div>
+            </section>
+
+            <section>
+              <h2 class="text-lg font-semibold text-white/90 mb-4 px-2 tracking-wide flex items-center gap-2">
+                 ${Icon('ExternalLink', 18, 'text-cyan-400')} 快速連結
+              </h2>
+              <a href="https://www.vjw.digital.go.jp/" target="_blank" rel="noopener noreferrer" class="block group">
+                ${GlassCard({
+                  hideGloss: true,
+                  className: 'flex items-center justify-between active:scale-[0.98] transition-all hover:bg-white/10 group-hover:shadow-[0_0_20px_rgba(236,72,153,0.1)]',
+                  content: `
+                    <div class="flex items-center space-x-4">
+                      <div class="bg-pink-500/10 p-3.5 rounded-2xl text-pink-400 border border-pink-500/20 shadow-[0_0_15px_rgba(236,72,153,0.15)] group-hover:scale-110 transition-transform">
+                        ${Icon('QrCode', 24)}
+                      </div>
+                      <div>
+                        <h3 class="text-base font-bold text-white group-hover:text-pink-200 transition-colors">Visit Japan Web</h3>
+                        <p class="text-xs text-white/40 mt-0.5">入境審查、海關申報 QR Code</p>
+                      </div>
+                    </div>
+                    <div class="bg-white/5 p-2 rounded-full">
+                       ${Icon('ArrowRight', 16, 'text-white/30 group-hover:text-pink-300 transition-colors')}
+                    </div>
+                  `
+                })}
+              </a>
+            </section>
+          </div>
+        `;
+      }
+
+      // --- ITINERARY ---
+      function getSpotTheme(spot) {
+        if (spot.isPriority) return {
+          border: 'shadow-[inset_0_0_0_1px_rgba(239,68,68,0.5)]',
+          bgHover: 'hover:from-red-900/20 hover:to-red-900/5',
+          bgActive: 'from-red-950/40 to-red-950/20',
+          textTitle: 'text-red-200',
+          badge: 'bg-red-500/20 text-red-300 border-red-500/30',
+          dot: 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.6)]'
+        };
+        if (spot.type === SpotType.TRANSPORT) return {
+          border: 'shadow-[inset_0_0_0_1px_rgba(96,165,250,0.4)]',
+          bgHover: 'hover:from-blue-900/20 hover:to-blue-900/5',
+          bgActive: 'from-blue-950/40 to-blue-950/20',
+          textTitle: 'text-blue-200',
+          badge: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+          dot: 'bg-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.6)]'
+        };
+        if (spot.cost && spot.type !== SpotType.RESTAURANT && spot.type !== SpotType.DESSERT) return {
+          border: 'shadow-[inset_0_0_0_1px_rgba(250,204,21,0.4)]',
+          bgHover: 'hover:from-yellow-900/20 hover:to-yellow-900/5',
+          bgActive: 'from-yellow-950/40 to-yellow-950/20',
+          textTitle: 'text-yellow-200',
+          badge: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
+          dot: 'bg-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.6)]'
+        };
+        if (spot.type === SpotType.DESSERT) return {
+          border: 'shadow-[inset_0_0_0_1px_rgba(236,72,153,0.4)]',
+          bgHover: 'hover:from-pink-900/20 hover:to-pink-900/5',
+          bgActive: 'from-pink-950/40 to-pink-950/20',
+          textTitle: 'text-pink-200',
+          badge: 'bg-pink-500/20 text-pink-300 border-pink-500/30',
+          dot: 'bg-pink-400 shadow-[0_0_10px_rgba(236,72,153,0.5)]'
+        };
+        if (spot.type === SpotType.RESTAURANT) return {
+          border: 'shadow-[inset_0_0_0_1px_rgba(249,115,22,0.3)]',
+          bgHover: 'hover:from-orange-900/20 hover:to-orange-900/5',
+          bgActive: 'from-orange-950/30 to-orange-950/10',
+          textTitle: 'text-orange-200',
+          badge: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
+          dot: 'bg-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.5)]'
+        };
+        return {
+          border: '',
+          bgHover: '',
+          bgActive: 'from-white/10 to-white/5',
+          textTitle: 'text-white/90',
+          badge: 'bg-white/10 text-white/70 border-white/10',
+          dot: 'bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]'
+        };
+      }
+
+      function getSpotIcon(type, name) {
+        if (type === SpotType.RESTAURANT) return 'Utensils';
+        if (type === SpotType.DESSERT) return 'Coffee';
+        if (type === SpotType.SHOPPING) return 'ShoppingBag';
+        if (type === SpotType.TRANSPORT) {
+          if (name.includes('車') || name.includes('開')) return 'Car';
+          if (name.includes('新幹線') || name.includes('鐵')) return 'TrainFront';
+          return 'Clock';
+        }
+        if (type === SpotType.SIGHTSEEING) return 'Camera';
+        return 'MapPin';
+      }
+
+      function renderItineraryPage() {
+        const currentDay = TRIP_DATA[state.selectedDayIndex];
+        const sourceSpots = currentDay.plans ? (currentDay.plans[state.activePlan]?.spots || []) : currentDay.spots;
+        
+        const primarySpots = [];
+        const backupSpots = [];
+
+        sourceSpots.forEach(spot => {
+          if (spot.id.includes('bk') || spot.name.includes('候補')) {
+            backupSpots.push(spot);
+          } else {
+            primarySpots.push(spot);
+          }
+        });
+
+        // Current map location (default to Hotel if not set for this day)
+        if (!state.activeMapLocation) state.activeMapLocation = currentDay.hotel.name;
+
+        // Render Spots Logic
+        const renderSpotCard = (spot, isBackup = false) => {
+          const theme = getSpotTheme(spot);
+          const iconName = getSpotIcon(spot.type, spot.name);
+          
+          return `
+            <div class="relative flex gap-4 ${isBackup ? 'opacity-90' : ''}">
+              ${!isBackup ? `<div class="z-10 mt-6 min-w-[20px] h-[20px] rounded-full border-4 border-[#0a0a0a] transition-all duration-300 ${theme.dot}"></div>` : ''}
+
+              ${GlassCard({
+                className: `flex-1 transition-all duration-300 cursor-pointer group ${theme.border} ${theme.bgHover} spot-card-${spot.id}`,
+                onClick: `toggleSpotAccordion('${spot.id}')`,
+                content: `
+                  <div class="flex justify-between items-start">
+                    <div class="flex gap-2 items-center mb-1.5">
+                       <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border ${theme.badge}">
+                         ${isBackup ? spot.type : spot.time}
+                       </span>
+                       ${spot.type === SpotType.RESTAURANT && !isBackup ? `<span class="text-[10px] px-1.5 py-0.5 rounded border bg-yellow-500/10 text-yellow-300 border-yellow-500/20 flex items-center gap-1">${Icon('Star', 8, '', 3)} 推薦</span>` : ''}
+                    </div>
+                    ${spot.cost ? `<div class="text-[10px] font-bold text-yellow-300 flex items-center gap-1 bg-black/40 px-2 py-0.5 rounded-full border border-yellow-500/20 shadow-sm">${Icon('Wallet', 10)} ${spot.cost}</div>` : ''}
+                  </div>
+
+                  <h3 class="text-base font-bold mb-1 leading-snug group-hover:text-white transition-colors ${theme.textTitle}">
+                    ${spot.name.replace('候補', '')}
+                  </h3>
+                  
+                  ${spot.tags ? `<div class="flex flex-wrap gap-1.5 mb-2.5">
+                    ${spot.tags.map(tag => {
+                      const isHighlight = tag.includes('必') || tag.includes('重要') || tag.includes('預約') || tag.includes('推薦');
+                      return `<span class="text-[9px] px-2 py-0.5 rounded-full border ${isHighlight ? 'bg-pink-500/20 text-pink-300 border-pink-500/30 font-bold' : 'bg-white/5 text-white/40 border-white/5'}">${tag}</span>`;
+                    }).join('')}
+                  </div>` : ''}
+
+                  <div class="flex justify-between items-end mt-1">
+                    <div class="flex items-center gap-2 text-xs text-white/50 flex-1 mr-2">
+                       <div class="shrink-0 opacity-70">${Icon(iconName, 18)}</div>
+                       <span class="transition-all line-clamp-1 spot-desc-${spot.id}">${spot.description}</span>
+                    </div>
+                    <button class="text-white/30 shrink-0 group-hover:text-cyan-400 transition-colors spot-chevron-${spot.id}">
+                      ${Icon('ChevronDown', 18)}
+                    </button>
+                  </div>
+
+                  <div id="accordion-${spot.id}" class="accordion-content">
+                     <div class="overflow-hidden space-y-4">
+                        <div class="space-y-1">
+                          <div class="text-[10px] text-white/30 font-bold uppercase tracking-wider">景點介紹</div>
+                          <p class="text-sm text-white/80 leading-relaxed font-light">${spot.description}</p>
+                        </div>
+
+                        ${spot.tips ? `
+                          <div class="bg-white/[0.03] p-3 rounded-lg border border-white/5">
+                              <div class="flex items-center gap-2 text-cyan-400 text-xs font-bold mb-2 uppercase tracking-wide">
+                                  ${Icon('NotepadText', 12)} 攻略 & 提示 (Tips)
+                              </div>
+                              <p class="text-sm text-white/70 leading-relaxed whitespace-pre-line font-light">${spot.tips}</p>
+                          </div>
+                        ` : ''}
+                        
+                        ${spot.locationUrl ? `
+                          <a 
+                            href="${spot.locationUrl}" 
+                            target="_blank" 
+                            rel="noreferrer"
+                            onclick="event.stopPropagation()"
+                            class="flex items-center justify-center gap-2 w-full py-2.5 bg-blue-600/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30 rounded-lg font-medium text-xs transition-all"
+                          >
+                            ${Icon('MapPin', 14)} 開啟 Google Maps
+                          </a>
+                        ` : ''}
+                     </div>
+                  </div>
+                `
+              })}
+            </div>
+          `;
+        };
+
+        return `
+          <div class="pb-24 animate-fade-in h-full flex flex-col">
+            <!-- Date Selector -->
+            <div class="sticky top-0 z-40 bg-transparent pb-2 -mx-4 px-4 pt-2 backdrop-blur-[2px]">
+              <div class="flex overflow-x-auto no-scrollbar space-x-3 py-2 px-1">
+                ${TRIP_DATA.map((day, idx) => `
+                  <button
+                    onclick="selectDay(${idx})"
+                    class="flex flex-col items-center justify-center min-w-[4.5rem] py-2.5 px-1 rounded-2xl transition-all duration-300 active:scale-95
+                    ${state.selectedDayIndex === idx 
+                      ? 'bg-cyan-500/20 shadow-[inset_0_0_0_1px_rgba(6,182,212,0.3)] shadow-[0_0_20px_rgba(6,182,212,0.2)]' 
+                      : 'bg-white/5 shadow-glass-thick text-white/40 hover:bg-white/10'}"
+                  >
+                    <span class="text-[10px] font-bold tracking-wider mb-1 ${state.selectedDayIndex === idx ? 'text-cyan-300' : ''}">${day.dayOfWeek}</span>
+                    <span class="text-xl font-black font-mono ${state.selectedDayIndex === idx ? 'text-white' : ''}">${day.date.split('/')[1]}</span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Plan Selector -->
+            ${currentDay.plans ? `
+              <div class="flex gap-3 mb-4 mt-2">
+                 ${Object.keys(currentDay.plans).map((planKey) => {
+                    const label = currentDay.plans[planKey].label;
+                    const isActive = state.activePlan === planKey;
+                    return `
+                      <button
+                        onclick="selectPlan('${planKey}')"
+                        class="flex-1 py-3 px-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all duration-300
+                        ${isActive 
+                           ? 'bg-gradient-to-r from-cyan-500/30 to-blue-500/30 text-white shadow-[inset_0_0_0_1px_rgba(6,182,212,0.4)] shadow-glow' 
+                           : 'bg-white/5 text-white/40 hover:bg-white/10'}"
+                      >
+                         ${isActive ? `<span class="animate-pulse">${Icon('Split', 14)}</span>` : ''}
+                         ${label}
+                      </button>
+                    `;
+                 }).join('')}
+              </div>
+            ` : ''}
+
+            <!-- Weather & Map -->
+            <div class="space-y-4 mb-6 mt-2">
+                ${GlassCard({
+                  className: 'flex items-center justify-between !py-4 !px-6 from-blue-950/60 to-white/[0.05]',
+                  content: `
+                   <div class="flex items-center gap-4">
+                       <span class="text-4xl filter drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">${currentDay.weather.icon}</span>
+                       <div class="flex flex-col">
+                          <span class="text-3xl font-light text-white font-mono tracking-tight">${currentDay.weather.temp}</span>
+                       </div>
+                   </div>
+                   <div class="text-right">
+                      <span class="text-sm font-bold text-cyan-200 block tracking-wide">${currentDay.weather.condition}</span>
+                      <span class="text-[10px] text-white/40 flex items-center justify-end gap-1 mt-1 font-medium bg-black/20 px-2 py-0.5 rounded-full w-fit ml-auto shadow-inner-deep">
+                         ${Icon('MapPin', 10)} ${currentDay.hotel.address.split(' ')[0] || 'Japan'}
+                      </span>
+                   </div>
+                  `
+                })}
+
+                ${GlassCard({
+                  className: '!p-0 overflow-hidden',
+                  content: `
+                   <div class="h-56 w-full relative bg-[#1a1a1a]">
+                     <div class="absolute top-3 left-3 z-10 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] text-white/90 border border-white/10 flex items-center gap-1.5 shadow-lg">
+                       ${Icon('LocateFixed', 12, 'text-cyan-400')}
+                       <span class="font-medium truncate max-w-[200px]">${state.activeMapLocation}</span>
+                     </div>
+                     <iframe
+                       title="Map"
+                       width="100%"
+                       height="100%"
+                       frameBorder="0"
+                       style="border: 0; filter: invert(90%) hue-rotate(180deg) contrast(90%) grayscale(20%)"
+                       src="https://maps.google.com/maps?q=${encodeURIComponent(state.activeMapLocation)}&t=&z=14&ie=UTF8&iwloc=&output=embed"
+                       allowFullScreen
+                       loading="lazy"
+                       referrerPolicy="no-referrer-when-downgrade"
+                     ></iframe>
+                     <div class="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-black/80 to-transparent pointer-events-none"></div>
+                   </div>
+
+                   <div class="p-4 border-t border-white/5">
+                      <div class="flex items-center gap-2 mb-3 text-[10px] text-white/40 font-bold uppercase tracking-wider">
+                         ${Icon('Map', 12)} 點擊切換地圖地點
+                      </div>
+                      <div class="flex overflow-x-auto no-scrollbar gap-2 pb-1">
+                         <button 
+                            onclick="setMapLocation('${currentDay.hotel.name}')"
+                            class="shrink-0 whitespace-nowrap px-3 py-2 rounded-xl text-xs font-medium transition-all duration-300
+                            ${state.activeMapLocation === currentDay.hotel.name ? 'bg-cyan-500/20 text-cyan-300 shadow-[inset_0_0_0_1px_rgba(6,182,212,0.3)]' : 'bg-white/5 text-white/60 hover:bg-white/10 shadow-glass-thick'}"
+                         >
+                            🏨 住宿
+                         </button>
+                         ${primarySpots.map(spot => `
+                            <button
+                              onclick="setMapLocation('${spot.name}')"
+                              class="shrink-0 whitespace-nowrap px-3 py-2 rounded-xl text-xs font-medium transition-all duration-300
+                              ${state.activeMapLocation === spot.name ? 'bg-cyan-500/20 text-cyan-300 shadow-[inset_0_0_0_1px_rgba(6,182,212,0.3)]' : 'bg-white/5 text-white/60 hover:bg-white/10 shadow-glass-thick'}"
+                            >
+                               ${spot.name}
+                            </button>
+                         `).join('')}
+                      </div>
+                      <div class="mt-4 pt-3 border-t border-white/5 flex justify-end">
+                         <a 
+                           href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(state.activeMapLocation)}"
+                           target="_blank"
+                           rel="noreferrer"
+                           class="text-xs flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 transition-colors font-medium bg-cyan-900/20 px-3 py-1.5 rounded-lg border border-cyan-500/20"
+                         >
+                            ${Icon('ExternalLink', 12)} 導航至此地點
+                         </a>
+                      </div>
+                   </div>
+                  `
+                })}
+            </div>
+
+            <!-- Timeline -->
+            <div class="relative pl-4 space-y-8">
+              <div class="absolute left-[23px] top-4 bottom-4 w-[2px] bg-gradient-to-b from-cyan-500/50 via-purple-500/50 to-transparent opacity-50"></div>
+              ${primarySpots.map(spot => renderSpotCard(spot)).join('')}
+            </div>
+
+            <!-- Backups -->
+            ${backupSpots.length > 0 ? `
+              <div class="mt-12 pl-4 pt-6 border-t border-dashed border-white/10">
+                <h3 class="text-sm font-bold text-white/60 mb-4 flex items-center uppercase tracking-wider">
+                  ${Icon('Star', 16, 'text-yellow-400 mr-2', 3)}
+                  候補 / 額外推薦美食
+                </h3>
+                <div class="space-y-4">
+                  ${backupSpots.map(spot => renderSpotCard(spot, true)).join('')}
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      // --- CHECKLIST ---
+      function renderChecklistPage() {
+        // Calculate progress
+        const items = state.checklist;
+        const total = items.length;
+        const checked = items.filter(i => i.checked).length;
+        const progress = total > 0 ? (checked / total) * 100 : 0;
+        
+        // Categories
+        const categories = Array.from(new Set(items.map(i => i.category))).sort((a, b) => a === '自訂' ? -1 : b === '自訂' ? 1 : 0);
+        
+        // Available Categories for new item
+        const allCats = new Set(INITIAL_CHECKLIST.map(i => i.category));
+        allCats.add('自訂');
+        items.forEach(i => allCats.add(i.category));
+        const availableCategories = Array.from(allCats).sort((a, b) => a === '自訂' ? -1 : b === '自訂' ? 1 : 0);
+
+        return `
+          <div class="pb-24 space-y-6 animate-fade-in relative z-10 px-1">
+            <header class="px-2 pt-2 sticky top-0 z-30 pb-4 backdrop-blur-xl -mx-5 px-6 bg-black/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)] border-b border-white/5 transition-all duration-300">
+              <div class="flex justify-between items-center mb-4">
+                 <h1 class="text-2xl font-black tracking-tight text-white flex items-center gap-2 drop-shadow-md">
+                   ${Icon('Sparkles', 20, 'text-cyan-400')} 
+                   ${state.checklistEditing ? '編輯清單' : '行前準備'}
+                 </h1>
+                 <div class="flex items-center gap-2">
+                   ${!state.checklistEditing && checked > 0 ? `
+                     <button 
+                       onclick="clearCheckedItems()"
+                       class="text-[10px] font-bold text-red-300 bg-red-500/10 px-3 py-1.5 rounded-full hover:bg-red-500/20 transition-all border border-red-500/20 active:scale-95 flex items-center gap-1 shadow-[0_0_10px_rgba(239,68,68,0.2)]"
+                     >
+                       ${Icon('Trash2', 10)} 重置
+                     </button>
+                   ` : ''}
+                   <button
+                     onclick="toggleEditMode()"
+                     class="text-[10px] font-bold px-3 py-1.5 rounded-full transition-all border active:scale-95 flex items-center gap-1 shadow-glass-thick
+                     ${state.checklistEditing 
+                       ? 'text-green-300 bg-green-500/10 border-green-500/20 hover:bg-green-500/20 shadow-[0_0_10px_rgba(74,222,128,0.2)]' 
+                       : 'text-cyan-300 bg-cyan-500/10 border-cyan-500/20 hover:bg-cyan-500/20 shadow-[0_0_10px_rgba(6,182,212,0.2)]'}"
+                   >
+                     ${state.checklistEditing ? `${Icon('Check', 10)} 完成` : `${Icon('Pencil', 10)} 編輯`}
+                   </button>
+                 </div>
+              </div>
+              
+              <div class="relative transition-all duration-500 mt-6 ${state.checklistEditing ? 'opacity-30 grayscale' : 'opacity-100'}">
+                <div class="h-3 w-full bg-black/40 rounded-full shadow-inner-deep border-b border-white/5 overflow-hidden backdrop-blur-sm">
+                  <div 
+                    class="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 shadow-glow transition-all duration-700 ease-out"
+                    style="width: ${progress}%"
+                  ></div>
+                </div>
+                <div class="absolute right-0 -top-6 text-[10px] font-mono font-bold text-cyan-300 tracking-wider bg-black/40 px-2 py-0.5 rounded-md border border-white/5 backdrop-blur-md shadow-lg">
+                  ${Math.round(progress)}% READY
+                </div>
+              </div>
+            </header>
+
+            <form onsubmit="addChecklistItem(event)" class="relative group mx-1">
+              <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-[20px] blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div class="relative flex items-center bg-black/30 shadow-inner-deep rounded-[20px] border border-white/10 p-1.5 transition-all focus-within:border-white/30 focus-within:bg-black/50 hover:bg-black/40 gap-2">
+                 <div class="relative shrink-0">
+                   <select
+                      id="new-item-category"
+                      class="appearance-none bg-white/5 text-white/80 text-xs font-bold py-3 pl-3 pr-8 rounded-xl border border-white/5 outline-none focus:bg-white/10 focus:border-white/20 transition-colors w-[80px] truncate"
+                   >
+                     ${availableCategories.map(cat => `<option value="${cat}" class="bg-gray-900 text-white">${cat}</option>`).join('')}
+                   </select>
+                   <div class="absolute right-2 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none">${Icon('ChevronDown', 12)}</div>
+                 </div>
+                 <input 
+                   type="text" 
+                   id="new-item-text"
+                   placeholder="${state.checklistEditing ? "新增項目..." : "新增待辦事項..."}"
+                   class="flex-1 bg-transparent border-none outline-none text-white px-2 py-3 placeholder:text-white/30 text-sm font-medium min-w-0"
+                   autocomplete="off"
+                 />
+                 <button 
+                   type="submit"
+                   class="p-2.5 rounded-2xl bg-white/10 text-white/70 hover:bg-cyan-500 hover:text-white hover:shadow-glow transition-all disabled:opacity-30 disabled:hover:bg-white/10 shrink-0"
+                 >
+                   ${Icon('Plus', 18)}
+                 </button>
+              </div>
+            </form>
+
+            <div class="space-y-4">
+              ${categories.map(category => {
+                 const categoryItems = items.filter(i => i.category === category);
+                 const isExpanded = state.expandedChecklistCategories.has(category);
+                 const catChecked = categoryItems.filter(i => i.checked).length;
+                 const catTotal = categoryItems.length;
+                 const isComplete = catTotal > 0 && catChecked === catTotal;
+
+                 return `
+                  <div class="group relative bg-white/[0.1] backdrop-blur-3xl border ${state.checklistEditing ? 'border-cyan-500/30' : 'border-white/[0.3]'} shadow-lg rounded-[24px] overflow-hidden transition-all duration-300">
+                    <button 
+                      onclick="toggleChecklistCategory('${category}')"
+                      class="w-full flex items-center justify-between p-5 cursor-pointer hover:bg-white/[0.05] transition-colors outline-none"
+                    >
+                      <div class="flex items-center gap-3">
+                         <div class="w-1.5 h-6 rounded-full transition-colors duration-300 ${isComplete && !state.checklistEditing ? 'bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.6)]' : 'bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.6)]'}"></div>
+                         <div class="text-left">
+                           <h3 class="text-base font-bold text-white tracking-wide group-hover:text-white transition-colors">${category}</h3>
+                           <span class="text-[10px] font-medium text-white/50 tracking-wider uppercase">
+                             ${state.checklistEditing ? `${catTotal} 個項目` : `${catChecked} / ${catTotal} 完成`}
+                           </span>
+                         </div>
+                      </div>
+                      <div class="p-2 rounded-full bg-white/5 border border-white/10 text-white/60 group-hover:text-white group-hover:bg-white/10 group-hover:scale-110 transition-all duration-300 ${isExpanded ? 'rotate-180 bg-white/10 text-white' : ''}">
+                        ${Icon('ChevronDown', 18)}
+                      </div>
+                    </button>
+
+                    <div class="grid transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}">
+                       <div class="overflow-hidden">
+                          <div class="bg-black/[0.2] border-t border-white/5 p-2 space-y-1 shadow-[inset_0_4px_12px_rgba(0,0,0,0.2)]">
+                            ${categoryItems.map((item, index) => `
+                              <div 
+                                onclick="toggleChecklistItem('${item.id}')"
+                                class="relative flex items-center gap-4 p-3.5 rounded-xl transition-all duration-300
+                                ${state.checklistEditing ? 'cursor-default bg-white/[0.03] border border-white/5' : item.checked ? 'cursor-pointer opacity-50 grayscale-[0.5]' : 'cursor-pointer hover:bg-white/5 active:scale-[0.99]'}"
+                              >
+                                 ${state.checklistEditing ? `
+                                   <div class="flex flex-col gap-1 shrink-0">
+                                     <button onclick="moveChecklistItem(event, '${item.id}', 'up')" class="p-1 hover:bg-white/10 rounded text-white/50 hover:text-cyan-300 transition-colors">${Icon('ArrowUp', 14)}</button>
+                                     <button onclick="moveChecklistItem(event, '${item.id}', 'down')" class="p-1 hover:bg-white/10 rounded text-white/50 hover:text-cyan-300 transition-colors">${Icon('ArrowDown', 14)}</button>
+                                   </div>
+                                   <span class="flex-1 text-sm font-medium transition-all duration-300 leading-snug text-white/90 drop-shadow-sm">${item.text}</span>
+                                   <button onclick="deleteChecklistItem(event, '${item.id}')" class="p-2 text-red-400 hover:bg-red-500/20 hover:text-red-300 rounded-lg transition-colors">
+                                     ${Icon('Trash2', 16)}
+                                   </button>
+                                 ` : `
+                                   <div class="relative w-5 h-5 rounded-full shrink-0 transition-all duration-500 flex items-center justify-center ${item.checked ? 'bg-gradient-to-br from-green-400 to-emerald-600 shadow-[0_0_12px_rgba(74,222,128,0.8)] scale-105' : 'bg-black/40 border border-white/10 shadow-inner-deep'}">
+                                     ${item.checked ? '<div class="w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_5px_white] animate-pulse"></div>' : ''}
+                                   </div>
+                                   <span class="flex-1 text-sm font-medium transition-all duration-300 leading-snug ${item.checked ? 'text-white/40' : 'text-white/90 drop-shadow-sm'}">${item.text}</span>
+                                   ${!item.checked ? '<div class="w-1 h-1 rounded-full bg-white/20"></div>' : ''}
+                                 `}
+                              </div>
+                            `).join('')}
+                          </div>
+                       </div>
+                    </div>
+                  </div>
+                 `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      // --- INFO ---
+      function renderInfoPage() {
+        return `
+          <div class="pb-24 space-y-4 animate-fade-in pt-4">
+            <h1 class="text-3xl font-bold px-2 mb-6">旅遊資訊</h1>
+            
+            <!-- Outfit -->
+            <div class="relative">
+              ${GlassCard({
+                className: `transition-all duration-300 !p-0 overflow-hidden border-cyan-500/20 ${state.infoOpenSection === 'outfit' ? 'bg-white/15' : 'hover:bg-white/10'}`,
+                content: `
+                  <button onclick="toggleInfoSection('outfit')" class="w-full flex items-center justify-between p-5">
+                    <div class="flex items-center gap-3 text-cyan-300">
+                      ${Icon('Snowflake', 24)}
+                      <h2 class="text-lg font-bold">1月穿搭指南 (東北/輕井澤)</h2>
+                    </div>
+                    <div class="transition-transform duration-300 ${state.infoOpenSection === 'outfit' ? 'rotate-180' : ''}">
+                      ${Icon('ChevronDown', 20, 'text-white/50')}
+                    </div>
+                  </button>
+                  <div class="accordion-content ${state.infoOpenSection === 'outfit' ? 'open' : ''}">
+                    <div class="accordion-inner px-5 pb-5">
+                      <div class="space-y-3 text-white/80 text-sm leading-relaxed">
+                        <p><strong class="text-white block mb-1">平均氣溫: -5°C ~ 5°C</strong> 銀山溫泉、藏王樹冰極冷，務必做好防寒防滑。</p>
+                        <ul class="list-disc pl-4 space-y-2 text-white/70">
+                          <li><span class="text-white font-medium">上半身:</span> 發熱衣 + 毛衣/刷毛T + 防風防水羽絨外套 (洋蔥式)。</li>
+                          <li><span class="text-white font-medium">下半身:</span> 發熱褲 + 防風褲/厚牛仔褲。</li>
+                          <li><span class="text-white font-medium">鞋子:</span> <span class="text-yellow-400">絕對需要防滑防水靴子</span>。雪地易滑，一般球鞋危險。</li>
+                          <li><span class="text-white font-medium">配件:</span> 毛帽 (遮耳)、圍巾、防水手套、暖暖包。</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                `
+              })}
+            </div>
+
+            <!-- Taboos -->
+            <div class="relative">
+              ${GlassCard({
+                className: `transition-all duration-300 !p-0 overflow-hidden border-red-500/20 ${state.infoOpenSection === 'taboos' ? 'bg-white/15' : 'hover:bg-white/10'}`,
+                content: `
+                  <button onclick="toggleInfoSection('taboos')" class="w-full flex items-center justify-between p-5">
+                    <div class="flex items-center gap-3 text-red-300">
+                      ${Icon('AlertTriangle', 24)}
+                      <h2 class="text-lg font-bold">注意事項 & 禁忌</h2>
+                    </div>
+                    <div class="transition-transform duration-300 ${state.infoOpenSection === 'taboos' ? 'rotate-180' : ''}">
+                      ${Icon('ChevronDown', 20, 'text-white/50')}
+                    </div>
+                  </button>
+                  <div class="accordion-content ${state.infoOpenSection === 'taboos' ? 'open' : ''}">
+                    <div class="accordion-inner px-5 pb-5">
+                      <ul class="space-y-3 text-sm text-white/80">
+                        <li class="flex gap-3"><span class="bg-red-500/20 text-red-300 px-2 rounded h-fit whitespace-nowrap text-xs py-0.5">入境</span><span>肉類 (含肉乾)、新鮮蔬果嚴禁攜帶入境。</span></li>
+                        <li class="flex gap-3"><span class="bg-red-500/20 text-red-300 px-2 rounded h-fit whitespace-nowrap text-xs py-0.5">溫泉</span><span>刺青者通常禁止進入大眾池 (建議使用貸切風呂/個人池)。毛巾不可入水。</span></li>
+                        <li class="flex gap-3"><span class="bg-red-500/20 text-red-300 px-2 rounded h-fit whitespace-nowrap text-xs py-0.5">交通</span><span>電車內請勿通話。新幹線需預約大型行李席位 (若行李超大)。</span></li>
+                      </ul>
+                    </div>
+                  </div>
+                `
+              })}
+            </div>
+
+            <!-- Emergency -->
+            <div class="relative">
+              ${GlassCard({
+                className: `transition-all duration-300 !p-0 overflow-hidden border-green-500/20 ${state.infoOpenSection === 'emergency' ? 'bg-white/15' : 'hover:bg-white/10'}`,
+                content: `
+                  <button onclick="toggleInfoSection('emergency')" class="w-full flex items-center justify-between p-5">
+                    <div class="flex items-center gap-3 text-green-300">
+                      ${Icon('ShieldAlert', 24)}
+                      <h2 class="text-lg font-bold">緊急聯絡人</h2>
+                    </div>
+                    <div class="transition-transform duration-300 ${state.infoOpenSection === 'emergency' ? 'rotate-180' : ''}">
+                      ${Icon('ChevronDown', 20, 'text-white/50')}
+                    </div>
+                  </button>
+                  <div class="accordion-content ${state.infoOpenSection === 'emergency' ? 'open' : ''}">
+                    <div class="accordion-inner px-5 pb-5">
+                       <div class="grid grid-cols-2 gap-4">
+                         <a href="tel:110" class="bg-white/5 p-3 rounded-xl flex items-center gap-3 hover:bg-white/10 transition">
+                           <div class="bg-red-500/20 p-2 rounded-full text-red-400">${Icon('Phone', 18)}</div>
+                           <div><div class="text-xs text-white/50">警察局</div><div class="text-xl font-bold">110</div></div>
+                         </a>
+                         <a href="tel:119" class="bg-white/5 p-3 rounded-xl flex items-center gap-3 hover:bg-white/10 transition">
+                           <div class="bg-red-500/20 p-2 rounded-full text-red-400">${Icon('Phone', 18)}</div>
+                           <div><div class="text-xs text-white/50">救護車/火警</div><div class="text-xl font-bold">119</div></div>
+                         </a>
+                      </div>
+                      <div class="mt-4 pt-4 border-t border-white/10">
+                        <h3 class="text-sm font-bold text-white/70 mb-2">台北駐日經濟文化代表處</h3>
+                        <a href="tel:+81-3-3280-7811" class="text-cyan-400 text-lg font-mono block">+81-3-3280-7811</a>
+                        <p class="text-xs text-red-400 mt-2 font-bold">旅外國人急難救助: +81-80-1009-7179</p>
+                      </div>
+                    </div>
+                  </div>
+                `
+              })}
+            </div>
+          </div>
+        `;
+      }
+
+      // ----------------------------------------------------------------------
+      // MAIN RENDERER
+      // ----------------------------------------------------------------------
+      function renderApp() {
+        const root = document.getElementById('root');
+        
+        let pageContent = '';
+        if (state.activeTab === 'home') pageContent = renderHomePage();
+        else if (state.activeTab === 'itinerary') pageContent = renderItineraryPage();
+        else if (state.activeTab === 'checklist') pageContent = renderChecklistPage();
+        else if (state.activeTab === 'info') pageContent = renderInfoPage();
+
+        root.innerHTML = `
+            <!-- Dynamic Background -->
+            <div class="fixed inset-0 z-0 bg-[#0a0a0a]">
+              <!-- Animated Orbs -->
+              <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-900/40 rounded-full blur-[100px] animate-pulse"></div>
+              <div class="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-cyan-900/30 rounded-full blur-[80px] animate-pulse" style="animation-delay: 2s"></div>
+              <div class="absolute top-[40%] left-[30%] w-[300px] h-[300px] bg-blue-900/20 rounded-full blur-[90px] animate-pulse" style="animation-delay: 4s"></div>
+              
+              <!-- Noise Texture -->
+              <div class="absolute inset-0 opacity-[0.03]" style="background-image: url(&quot;data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E&quot;)"></div>
+            </div>
+
+            <!-- Main Content Area -->
+            <main class="relative z-10 max-w-md mx-auto min-h-screen p-4 flex flex-col">
+              <header class="flex flex-col gap-2 px-2 pt-6 pb-6 mb-2">
+                <h1 class="text-4xl font-black tracking-tight text-white drop-shadow-lg leading-tight">
+                  日本東北之旅
+                </h1>
+                <div class="inline-flex items-center self-start gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/10 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2)]">
+                  ${Icon('Snowflake', 12, 'text-cyan-200')}
+                  <span class="text-xs font-medium tracking-widest text-white/80">2026 冬季</span>
+                </div>
+              </header>
+
+              ${pageContent}
+            </main>
+
+            <!-- Navbar -->
+            <div class="fixed bottom-6 left-4 right-4 z-50">
+              <div class="flex justify-around items-center bg-gradient-to-b from-white/[0.15] to-white/[0.05] backdrop-blur-2xl shadow-glass-thick rounded-[2rem] h-16">
+                ${[
+                  { id: 'home', label: '首頁', icon: 'Home' },
+                  { id: 'itinerary', label: '行程', icon: 'Map' },
+                  { id: 'checklist', label: '清單', icon: 'CheckSquare' },
+                  { id: 'info', label: '資訊', icon: 'Info' }
+                ].map(item => `
+                  <button
+                    onclick="switchTab('${item.id}')"
+                    class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-all duration-300 relative
+                    ${state.activeTab === item.id ? 'text-cyan-400' : 'text-gray-400 hover:text-gray-200'}"
+                  >
+                    ${Icon(item.icon, 24, `transition-transform duration-300 ${state.activeTab === item.id ? 'scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]' : ''}`, state.activeTab === item.id ? 2.5 : 2)}
+                    <span class="text-[10px] font-medium tracking-wide">${item.label}</span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+        `;
+        
+        lucide.createIcons();
+      }
+
+      // ----------------------------------------------------------------------
+      // ACTION HANDLERS (Global Scope for Event Delegation)
+      // ----------------------------------------------------------------------
+      
+      window.switchTab = (tabId) => {
+        state.activeTab = tabId;
+        renderApp();
+        window.scrollTo(0, 0);
+      };
+
+      // Itinerary Actions
+      window.selectDay = (index) => {
+        state.selectedDayIndex = index;
+        state.activePlan = 'A'; // Reset plan on day change
+        state.activeMapLocation = TRIP_DATA[index].hotel.name; // Reset map
+        renderApp();
+      };
+
+      window.selectPlan = (plan) => {
+        state.activePlan = plan;
+        renderApp();
+      };
+
+      window.setMapLocation = (location) => {
+        state.activeMapLocation = location;
+        renderApp();
+      };
+
+      window.toggleSpotAccordion = (spotId) => {
+        // Vanilla Toggle Logic - Manipulate DOM directly to avoid re-render scroll jumping
+        const accordion = document.getElementById(`accordion-${spotId}`);
+        const card = document.querySelector(`.spot-card-${spotId}`);
+        const chevron = document.querySelector(`.spot-chevron-${spotId}`);
+        const desc = document.querySelector(`.spot-desc-${spotId}`);
+        
+        const isOpen = accordion.classList.contains('open');
+
+        if (isOpen) {
+            accordion.classList.remove('open');
+            // Remove expanded styles from card
+            card.classList.remove('from-white/10', 'to-white/5'); // bgActive
+            
+            // Revert Chevron
+            chevron.innerHTML = Icon('ChevronDown', 18);
+            lucide.createIcons();
+            
+            // Revert Line clamp
+            desc.classList.add('line-clamp-1');
+        } else {
+            accordion.classList.add('open');
+            // Add expanded styles
+            card.classList.add('from-white/10', 'to-white/5'); // bgActive
+            
+            // Rotate Chevron
+            chevron.innerHTML = Icon('ChevronUp', 18);
+            lucide.createIcons();
+            
+            // Remove Line clamp
+            desc.classList.remove('line-clamp-1');
+        }
+      };
+
+      // Info Actions
+      window.toggleInfoSection = (sectionId) => {
+        state.infoOpenSection = state.infoOpenSection === sectionId ? null : sectionId;
+        renderApp();
+      };
+
+      // Checklist Actions
+      window.toggleEditMode = () => {
+        state.checklistEditing = !state.checklistEditing;
+        renderApp();
+      };
+
+      window.toggleChecklistCategory = (category) => {
+        if (state.expandedChecklistCategories.has(category)) {
+            state.expandedChecklistCategories.delete(category);
+        } else {
+            state.expandedChecklistCategories.add(category);
+        }
+        renderApp();
+      };
+
+      window.toggleChecklistItem = (id) => {
+        if (state.checklistEditing) return;
+        const item = state.checklist.find(i => i.id === id);
+        if (item) {
+            item.checked = !item.checked;
+            localStorage.setItem('japan_trip_checklist_v2', JSON.stringify(state.checklist));
+            renderApp();
+        }
+      };
+
+      window.addChecklistItem = (e) => {
+        e.preventDefault();
+        const textInput = document.getElementById('new-item-text');
+        const catInput = document.getElementById('new-item-category');
+        const text = textInput.value.trim();
+        const category = catInput.value;
+
+        if (text) {
+            state.checklist.unshift({
+                id: Date.now().toString(),
+                text: text,
+                category: category,
+                checked: false
+            });
+            state.expandedChecklistCategories.add(category);
+            localStorage.setItem('japan_trip_checklist_v2', JSON.stringify(state.checklist));
+            renderApp();
+            
+            // Refocus (Need to wait for render)
+            setTimeout(() => document.getElementById('new-item-text').focus(), 50);
+        }
+      };
+
+      window.deleteChecklistItem = (e, id) => {
+        e.stopPropagation();
+        if (confirm('確定要刪除此項目嗎？')) {
+            state.checklist = state.checklist.filter(i => i.id !== id);
+            localStorage.setItem('japan_trip_checklist_v2', JSON.stringify(state.checklist));
+            renderApp();
+        }
+      };
+
+      window.clearCheckedItems = () => {
+         if (confirm('確定要清除所有已選取的項目嗎？')) {
+            state.checklist = state.checklist.map(i => ({...i, checked: false}));
+            localStorage.setItem('japan_trip_checklist_v2', JSON.stringify(state.checklist));
+            renderApp();
+         }
+      };
+
+      window.moveChecklistItem = (e, id, dir) => {
+        e.stopPropagation();
+        const index = state.checklist.findIndex(i => i.id === id);
+        if (index === -1) return;
+        
+        const currentCategory = state.checklist[index].category;
+        let swapIndex = -1;
+
+        if (dir === 'up') {
+          for (let i = index - 1; i >= 0; i--) {
+            if (state.checklist[i].category === currentCategory) {
+              swapIndex = i;
+              break;
+            }
+          }
+        } else {
+          for (let i = index + 1; i < state.checklist.length; i++) {
+            if (state.checklist[i].category === currentCategory) {
+              swapIndex = i;
+              break;
+            }
+          }
+        }
+
+        if (swapIndex !== -1) {
+            const temp = state.checklist[index];
+            state.checklist[index] = state.checklist[swapIndex];
+            state.checklist[swapIndex] = temp;
+            localStorage.setItem('japan_trip_checklist_v2', JSON.stringify(state.checklist));
+            renderApp();
+        }
+      };
+
+      // ----------------------------------------------------------------------
+      // INIT
+      // ----------------------------------------------------------------------
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log("App Started: Single File Vanilla JS Mode");
+        renderApp();
+      });
+
+    </script>
+</body>
+</html>
