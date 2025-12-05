@@ -361,19 +361,105 @@
         }
       ];
 
+      // UPDATED CHECKLIST BASED ON PDF CONTENT
       const INITIAL_CHECKLIST = [
-        { id: 'imp-1', category: '重要證件/金錢', text: '護照', checked: false },
-        { id: 'imp-2', category: '重要證件/金錢', text: '國際駕照 & 譯本', checked: false },
-        { id: 'imp-4', category: '重要證件/金錢', text: '機票', checked: false },
-        { id: 'imp-6', category: '重要證件/金錢', text: '錢包(現金/提款卡)', checked: false },
-        { id: 'imp-11', category: '重要證件/金錢', text: '網卡 / Esim', checked: false },
-        { id: 'cloth-3', category: '衣物 (留意天氣)', text: '外套/厚外套', checked: false },
-        { id: 'cloth-5', category: '衣物 (留意天氣)', text: '內衣褲/襪子', checked: false },
-        { id: 'elec-1', category: '電器', text: '行動電源/充電線', checked: false },
+        // MOST IMPORTANT (沒帶齊別想出去玩)
+        { id: 'imp-1', category: 'MOST IMPORTANT', text: '護照', checked: false },
+        { id: 'imp-2', category: 'MOST IMPORTANT', text: '國際駕照', checked: false },
+        { id: 'imp-3', category: 'MOST IMPORTANT', text: '國際駕照譯本', checked: false },
+        { id: 'imp-4', category: 'MOST IMPORTANT', text: '機票', checked: false },
+        { id: 'imp-5', category: 'MOST IMPORTANT', text: '簽證', checked: false },
+        { id: 'imp-6', category: 'MOST IMPORTANT', text: '錢包(現金/提款卡)', checked: false },
+        { id: 'imp-7', category: 'MOST IMPORTANT', text: '手機', checked: false },
+        { id: 'imp-8', category: 'MOST IMPORTANT', text: '鑰匙', checked: false },
+        { id: 'imp-9', category: 'MOST IMPORTANT', text: '飯店預約單', checked: false },
+        { id: 'imp-10', category: 'MOST IMPORTANT', text: '機票證明', checked: false },
+        { id: 'imp-11', category: 'MOST IMPORTANT', text: '網卡 / Esim', checked: false },
+
+        // 衣物(留意天氣)
+        { id: 'cloth-1', category: '衣物(留意天氣)', text: '上衣', checked: false },
+        { id: 'cloth-2', category: '衣物(留意天氣)', text: '褲子', checked: false },
+        { id: 'cloth-3', category: '衣物(留意天氣)', text: '外套', checked: false },
+        { id: 'cloth-4', category: '衣物(留意天氣)', text: '厚外套', checked: false },
+        { id: 'cloth-5', category: '衣物(留意天氣)', text: '內衣', checked: false },
+        { id: 'cloth-6', category: '衣物(留意天氣)', text: '內褲', checked: false },
+        { id: 'cloth-7', category: '衣物(留意天氣)', text: '睡衣睡褲', checked: false },
+        { id: 'cloth-8', category: '衣物(留意天氣)', text: '襪子', checked: false },
+        { id: 'cloth-9', category: '衣物(留意天氣)', text: '鞋子', checked: false },
+        { id: 'cloth-10', category: '衣物(留意天氣)', text: '拖鞋', checked: false },
+        { id: 'cloth-11', category: '衣物(留意天氣)', text: '帽子', checked: false },
+        { id: 'cloth-12', category: '衣物(留意天氣)', text: '圍巾', checked: false },
+
+        // 電器
+        { id: 'elec-1', category: '電器', text: '行動電源', checked: false },
+        { id: 'elec-2', category: '電器', text: 'Type-C充電線', checked: false },
+        { id: 'elec-3', category: '電器', text: 'Lighting充電線', checked: false },
+        { id: 'elec-4', category: '電器', text: '手錶充電器', checked: false },
+        { id: 'elec-5', category: '電器', text: '快充頭', checked: false },
+        { id: 'elec-6', category: '電器', text: '耳機', checked: false },
         { id: 'elec-7', category: '電器', text: '萬用插頭', checked: false },
-        { id: 'toil-1', category: '盥洗用品', text: '牙刷/牙膏/洗面乳', checked: false },
-        { id: 'oth-1', category: '其他', text: '眼鏡/隱形眼鏡', checked: false },
-        { id: 'ski-1', category: '滑雪用具', text: '雪鏡/手套/雪褲', checked: false }
+        { id: 'elec-8', category: '電器', text: '變壓器', checked: false },
+        { id: 'elec-9', category: '電器', text: 'IPad', checked: false },
+        { id: 'elec-10', category: '電器', text: '筆電', checked: false },
+
+        // 盥洗用品
+        { id: 'toil-1', category: '盥洗用品', text: '牙刷', checked: false },
+        { id: 'toil-2', category: '盥洗用品', text: '牙膏', checked: false },
+        { id: 'toil-3', category: '盥洗用品', text: '洗面乳', checked: false },
+        { id: 'toil-4', category: '盥洗用品', text: '棉花棒', checked: false },
+        { id: 'toil-5', category: '盥洗用品', text: '衛生棉', checked: false },
+        { id: 'toil-6', category: '盥洗用品', text: '刮鬍刀', checked: false },
+        { id: 'toil-7', category: '盥洗用品', text: '梳子', checked: false },
+
+        // 其他
+        { id: 'other-1', category: '其他', text: '眼鏡', checked: false },
+        { id: 'other-2', category: '其他', text: '太陽眼鏡', checked: false },
+        { id: 'other-3', category: '其他', text: '眼鏡盒', checked: false },
+        { id: 'other-4', category: '其他', text: '水壺', checked: false },
+        { id: 'other-5', category: '其他', text: '筆', checked: false },
+        { id: 'other-6', category: '其他', text: '錶帶', checked: false },
+        { id: 'other-7', category: '其他', text: '手機殼', checked: false },
+        { id: 'other-8', category: '其他', text: '卡針', checked: false },
+        { id: 'other-9', category: '其他', text: '暖暖包', checked: false },
+        { id: 'other-10', category: '其他', text: '行李秤', checked: false },
+        { id: 'other-11', category: '其他', text: '雨傘', checked: false },
+
+        // 滑雪用具
+        { id: 'ski-1', category: '滑雪用具', text: '雪鏡', checked: false },
+        { id: 'ski-2', category: '滑雪用具', text: '面罩', checked: false },
+        { id: 'ski-3', category: '滑雪用具', text: '透氣內衣', checked: false },
+        { id: 'ski-4', category: '滑雪用具', text: '羽絨外套', checked: false },
+        { id: 'ski-5', category: '滑雪用具', text: '發熱衣', checked: false },
+        { id: 'ski-6', category: '滑雪用具', text: '雪褲', checked: false },
+        { id: 'ski-7', category: '滑雪用具', text: '厚襪子', checked: false },
+        { id: 'ski-8', category: '滑雪用具', text: '手套', checked: false },
+
+        // Tim的寶貝相機
+        { id: 'tim-1', category: 'Tim的寶貝相機', text: '相機', checked: false },
+        { id: 'tim-2', category: 'Tim的寶貝相機', text: '相機電池', checked: false },
+        { id: 'tim-3', category: 'Tim的寶貝相機', text: '鏡頭（斟酌）', checked: false },
+        { id: 'tim-4', category: 'Tim的寶貝相機', text: '記憶卡', checked: false },
+        { id: 'tim-5', category: 'Tim的寶貝相機', text: '相機充電器', checked: false },
+        { id: 'tim-6', category: 'Tim的寶貝相機', text: '小腳架', checked: false },
+        { id: 'tim-7', category: 'Tim的寶貝相機', text: '大腳架', checked: false },
+        { id: 'tim-8', category: 'Tim的寶貝相機', text: '怪手', checked: false },
+        { id: 'tim-9', category: 'Tim的寶貝相機', text: '吸盤', checked: false },
+        { id: 'tim-10', category: 'Tim的寶貝相機', text: '玻璃遮光罩', checked: false },
+        { id: 'tim-11', category: 'Tim的寶貝相機', text: 'GO ULTRA', checked: false },
+        { id: 'tim-12', category: 'Tim的寶貝相機', text: '樓上的配件', checked: false },
+        { id: 'tim-13', category: 'Tim的寶貝相機', text: '小工具', checked: false },
+
+        // Anna的寶貝化妝品
+        { id: 'anna-1', category: 'Anna的寶貝化妝品', text: '防曬乳', checked: false },
+        { id: 'anna-2', category: 'Anna的寶貝化妝品', text: '護唇膏', checked: false },
+        { id: 'anna-3', category: 'Anna的寶貝化妝品', text: '化妝品', checked: false },
+        { id: 'anna-4', category: 'Anna的寶貝化妝品', text: '卸妝用品', checked: false },
+        { id: 'anna-5', category: 'Anna的寶貝化妝品', text: '乳液/護手霜', checked: false },
+        { id: 'anna-6', category: 'Anna的寶貝化妝品', text: '臉部保養品', checked: false },
+        { id: 'anna-7', category: 'Anna的寶貝化妝品', text: '隱形眼鏡', checked: false },
+        { id: 'anna-8', category: 'Anna的寶貝化妝品', text: '香水', checked: false },
+        { id: 'anna-9', category: 'Anna的寶貝化妝品', text: '飾品', checked: false },
+        { id: 'anna-10', category: 'Anna的寶貝化妝品', text: '拔毛夾', checked: false }
       ];
 
       // ----------------------------------------------------------------------
@@ -385,13 +471,13 @@
         activePlan: 'A', // A or B
         checklist: [],
         checklistEditing: false,
-        expandedChecklistCategories: new Set(['自訂']),
+        expandedChecklistCategories: new Set(['MOST IMPORTANT']),
         activeMapLocation: null,
         infoOpenSection: 'outfit'
       };
 
       // Load Checklist from LocalStorage
-      const savedChecklist = localStorage.getItem('japan_trip_checklist_v2');
+      const savedChecklist = localStorage.getItem('japan_trip_checklist_v3');
       state.checklist = savedChecklist ? JSON.parse(savedChecklist) : JSON.parse(JSON.stringify(INITIAL_CHECKLIST));
 
       // ----------------------------------------------------------------------
@@ -1265,7 +1351,7 @@
         const item = state.checklist.find(i => i.id === id);
         if (item) {
             item.checked = !item.checked;
-            localStorage.setItem('japan_trip_checklist_v2', JSON.stringify(state.checklist));
+            localStorage.setItem('japan_trip_checklist_v3', JSON.stringify(state.checklist));
             renderApp();
         }
       };
@@ -1285,7 +1371,7 @@
                 checked: false
             });
             state.expandedChecklistCategories.add(category);
-            localStorage.setItem('japan_trip_checklist_v2', JSON.stringify(state.checklist));
+            localStorage.setItem('japan_trip_checklist_v3', JSON.stringify(state.checklist));
             renderApp();
             
             // Refocus (Need to wait for render)
@@ -1297,7 +1383,7 @@
         e.stopPropagation();
         if (confirm('確定要刪除此項目嗎？')) {
             state.checklist = state.checklist.filter(i => i.id !== id);
-            localStorage.setItem('japan_trip_checklist_v2', JSON.stringify(state.checklist));
+            localStorage.setItem('japan_trip_checklist_v3', JSON.stringify(state.checklist));
             renderApp();
         }
       };
@@ -1305,7 +1391,7 @@
       window.clearCheckedItems = () => {
          if (confirm('確定要清除所有已選取的項目嗎？')) {
             state.checklist = state.checklist.map(i => ({...i, checked: false}));
-            localStorage.setItem('japan_trip_checklist_v2', JSON.stringify(state.checklist));
+            localStorage.setItem('japan_trip_checklist_v3', JSON.stringify(state.checklist));
             renderApp();
          }
       };
@@ -1338,7 +1424,7 @@
             const temp = state.checklist[index];
             state.checklist[index] = state.checklist[swapIndex];
             state.checklist[swapIndex] = temp;
-            localStorage.setItem('japan_trip_checklist_v2', JSON.stringify(state.checklist));
+            localStorage.setItem('japan_trip_checklist_v3', JSON.stringify(state.checklist));
             renderApp();
         }
       };
